@@ -31,7 +31,8 @@
 --------------------------------/* Test Import */ --------------------------------
 
 select top 12 *
-from HiddenAttributes;
+from HiddenAttributes
+ORDER BY Pot desc;
 
 Select Count(*) from HiddenAttributes;
 
@@ -193,6 +194,77 @@ GO
 ------------------------ /* EXECUTE PROCEDURE to DANCE COLUMN */ ------------------------
 
 EXEC dbo.DANCE_COL_PROCEDURE;
+
+------------------------ /*  */ -----------------------------------------
+------------------------ /* SPACE FOR DYNAMIC PROCEDURE */ -----------------------------------------
+------------------------ /* SOMETHING TO LEARN DYNAMIC SQL */ -----------------------------------------
+------------------------ /*  */ -----------------------------------------
+
+------------------------ /* CREATE FUNCTION DYN_VARCHAR() */ -----------------------------------------
+
+CREATE OR ALTER FUNCTION
+dbo.DYN_VARCHAR()
+returns varchar(max)
+AS
+
+BEGIN
+
+    declare @sql nvarchar(max)
+            , @param varchar(max)
+    set @param = '38'
+    set @sql = 'SELECT * FROM HiddenAttributes'+' where [Alter] = ' + @param
+
+RETURN @sql
+END
+GO
+
+
+SELECT dbo.DYN_VARCHAR();
+EXEC sp_executesql DYN_VARCHAR;
+
+/*
+declare @sql nvarchar(max)
+        , @param varchar(max)
+set @param = '38'
+set @sql = 'SELECT * FROM HiddenAttributes'+' where [Alter] = ' + @param
+Print 'Die execution von : ' + @sql + ' steht kurz bevor'
+execute sp_executesql @sql
+
+SELECT *
+FROM INFORMATION_SCHEMA.COLUMNS;
+*/
+
+/*
+Select AF.type_id from HiddenAttributes
+where data_type = float
+*/
+
+Select * FROM sys.syscolumns where name = 'AF';
+Select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'HiddenAttributes';
+
+------------------------ /* INTO VAR FROM SELECT */ -----------------------------------------
+
+declare @myva varchar(max)
+        ,@pos int;
+/*set position */
+ set @pos = 9;
+/*run select into var */
+Select @myva = COLUMN_NAME
+--@myva = CONCAT(COLUMN_NAME, ' IS TYPE ', DATA_TYPE) /* with concat */
+from INFORMATION_SCHEMA.COLUMNS
+where TABLE_SCHEMA = 'dbo'
+  AND TABLE_NAME = 'HiddenAttributes'
+  AND ORDINAL_POSITION = @pos;
+/* print var value */
+print
+    'SELECTED VALUE IS: '
+     + @myva +
+    ' STORED IN VARIABLE @myva';
+
+------------------------ /*  */ -----------------------------------------
+------------------------ /* END OF THE DYNAMIC CHAPTER */ -----------------------------------------
+------------------------ /*  */ -----------------------------------------
+
 
 ------------------------ /* END OF PROCEDURE PART */ ------------------------
 
